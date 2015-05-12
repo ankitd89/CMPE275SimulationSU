@@ -6,6 +6,10 @@ from flask import jsonify
 import time
 import sys
 import logging
+#from httpie.output.formatters
+import json
+import requests
+from random import randint
 
 
 app = Flask(__name__)
@@ -15,53 +19,41 @@ port = None
 
 from queue import Queue
 
-
-class Orders:
-    """Base class for order object"""
-    def __init__(self, customerid, customername, itemname):
-        self.customerid = customerid
-        self.customername = customername
-        self.itemname = itemname
-
-    def displayOrder(self):
-        print("Order => {}...{}...{}".format(self.customerid, self.customername, self.itemname))
+#orderQueue= queue.Queue
 
 
-o=Orders(123,'Nupoor',1)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
-q=queue.Queue()
 
-q.put(o)
-o=Orders(123,'Nupoor',1)
-q.put(o)
-o=Orders(123,'Nupoor',1)
-q.put(o)
-o=Orders(123,'Nupoor',1)
-q.put(o)
+# def get_time():
+#     wallClockURL = 'http://localhost:10001/wallclock'
+#     queueResponse = requests.get(wallClockURL).json()
+#     # print("Printing time %s" %queueResponse['time'])
+#     return queueResponse['time']
 
-@app.route('/queue/readQueue', methods=['DELETE'])
-def read_queue():
-    if q.empty():
-        result_JSON = {
-            'response': 'Empty Order'
-        }
 
-        json_data = jsonify(result_JSON)
-        json_data.status_code = 204
+while(True):
+    req_custQueueUrl = "http://localhost:3000/queue/readQueue"
+    response = requests.delete(req_custQueueUrl)
+    if response.status_code == 200:
+        res = response.json()
+        customerId = res['custId']
+        customerName = res['customerName']
+        order = res['order']
 
-    else:
-        order = q.get(block=False)
+        time.sleep(randint(3, 10))
+        print("{} Cook: Hey {}, your {} is ready..".format(customerName, order))
+        Queue_Url = "http://localhost:5001/customer/removeCustomer"
+        #cust_header = {'Content-Type': 'application/json'}
+        requests.delete(Queue_Url)
+    elif response.status_code == 204:
+        # print("Waiting for next order..")
+        time.sleep(randint(3, 6))
 
-        result_JSON = {
-            'custId': order.customerid,
-            'customerName': order.customername,
-            'itemName': order.itemname
-        }
 
-        json_data = jsonify(result_JSON)
-        json_data.status_code = 200
 
-    return json_data
+
 
 
 if __name__ == '__main__':
@@ -69,8 +61,6 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
  app.debug = True
-#host = sys.argv[1]
-#port = int(sys.argv[2])
 host = 'localhost'
 port = 5000
 app.run(host=host, port=port)

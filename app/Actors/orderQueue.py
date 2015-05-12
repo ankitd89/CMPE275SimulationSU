@@ -30,5 +30,30 @@ def addOrderQueue():
     return resp
 
 
+@app.route('/queue/readQueue', methods=['DELETE'])
+def read_queue():
+    if orderQueue.empty():
+        result_JSON = {
+            'response': 'Empty Order'
+        }
+
+        json_data = jsonify(result_JSON)
+        json_data.status_code = 204
+
+    else:
+        order = orderQueue.get(block=False)
+
+        result_JSON = {
+            'custId': order.customerid,
+            'customerName': order.customername,
+            'itemName': order.itemname
+        }
+
+        json_data = jsonify(result_JSON)
+        json_data.status_code = 200
+
+    return json_data
+
+
 if __name__ == '__main__':
     app.run(port=3000)
