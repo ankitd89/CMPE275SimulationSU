@@ -15,15 +15,22 @@ port = None
 log = logging.getLogger('werkzeug')
 
 
+
 @app.route('/')
 def hello_world():
     return 'Hello World!'
+@app.route('/hey')
+def hello_name():
+    return 'Hello Nishant!'
 
 
 if __name__ == '__main__':
+    app.run(debug=True)
+
+if __name__ == '__main__':
     app.debug = True
-    host = sys.argv[1]
-    port = int(sys.argv[2])
-    #host = 'localhost'
-    #port = 5000
+    #host = sys.argv[1]
+    #port = int(sys.argv[2])
+    host = 'localhost'
+    port = 5000
     app.run(host=host, port=port)
