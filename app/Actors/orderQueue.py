@@ -9,6 +9,7 @@ from flask import jsonify
 from flask import json
 from flask import Response
 
+logging.getLogger("requests").setLevel(logging.WARNING)
 
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')

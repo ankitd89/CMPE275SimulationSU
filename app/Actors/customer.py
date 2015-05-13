@@ -4,15 +4,10 @@ import queue
 from flask import Flask
 from flask import request
 from flask import jsonify
-import logging
-
+import time
 app = Flask(__name__)
-log = logging.getLogger('werkzeug')
-
-def get_time():
-    wallClockURL = 'http://localhost:10001/wallclock'
-    queueResponse = request.get(wallClockURL).json()
-    return 	queueResponse['time']
+import logging
+logging.getLogger("requests").setLevel(logging.WARNING)
 
 q = queue.Queue()
 class Customer:
@@ -28,16 +23,14 @@ class Customer:
 
 
 
-    def __init__(self,customerName,custId,order):
+    def __init__(self,customerName,custId,order,arrivalTime):
         self.customerName = customerName
         self.custId = custId
         self.order = order
         #time the customer showed up
-        self.arrivalTime = 0
-        #in line waiting to be served
-        self.waitingTime = 0
-        #At the counter while being served
-        self.transactionTime = 0
+        self.arrivalTime = arrivalTime
+        #Order Waiting time
+        self.orderTime = 0
 
 
 
@@ -73,8 +66,9 @@ class Customer:
 #Cust_main will create customer and push it in queue
 @app.route('/customer', methods=['POST'])
 def create_customer():
+    start=time.time()
     if request.method == 'POST':
-        cust=Customer(request.json['customerName'], request.json['custId'], request.json['order'])
+        cust=Customer(request.json['customerName'], request.json['custId'], request.json['order'], start)
         print(cust.customerName + "added to Queue")
         customers.append(cust)
         q.put(cust)
@@ -89,6 +83,9 @@ def reomveCustomer():
         else:
             c = q.get(block=False)
             custId = c.custId
+            start = c.arrivalTime
+            endtime=round(time.time()-start,2)
+            print("Customer waited {} in the queue".format(endtime))
             return jsonify({"status": "customer deleted successfully", "custId": custId}), 200
 
 
@@ -96,21 +93,28 @@ def reomveCustomer():
 @app.route('/customer/getCustomer/<int:custId>', methods=['GET'])
 def getCustomer(custId):
     cust=findCustomer(customers, custId)
+    cust.orderTime = time.time()
     if cust is not None:
-        print("{}: Hello, I would like to have {} ".format( cust.customerName, cust.order))
-        return jsonify({'customerName': cust.customerName, 'custId': cust.custId, 'order': cust.order}), 200
+        print("{}: Hello, I would like to have {} ".format(cust.customerName, cust.order))
+        return jsonify({'customerName': cust.customerName, 'custId': cust.custId, 'order': cust.order, "orderTime": cust.orderTime}), 200
     else:
         return jsonify({"status": "customer not found"}), 200
 
-
-
+#Utility function to find customer from Customers List
 def findCustomer(list, custId):
     for i in list:
         if i.custId ==custId:
             return i
     return None
 
-
+# Coordinator will call this function when entire order is ready to deliver order
+@app.route('/customer/deliverOrder', methods=['POST'])
+def deliverCustomer():
+    print("Thank you")
+    orderTime = request.json['orderTime']
+    endtime=round(time.time()-orderTime,2)
+    print("Customer had to wait for {} to receive order".format(endtime))
+    return jsonify({"status": "Order Delivered to Customer"}), 200
 
 if __name__ == '__main__':
     app.debug = True
