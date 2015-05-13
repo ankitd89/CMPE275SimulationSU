@@ -24,11 +24,6 @@ class Order:
     def displayOrder(self):
         print("Order => {}...{}...{}".format(self.customerid, self.customername, self.orderName))
 
-
-
-
-
-
 @app.route('/cook/orderqueue', methods=['POST'])
 def addOrderQueue():
     custid = request.json['custId']

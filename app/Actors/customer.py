@@ -117,9 +117,6 @@ def deliverCustomer():
     return jsonify({"status": "Order Delivered to Customer"}), 200
 
 if __name__ == '__main__':
-    app.debug = True
-       # host = sys.argv[1]
-        #port = int(sys.argv[2])
     host = 'localhost'
     port = 5001
     app.run(host=host, port=port)

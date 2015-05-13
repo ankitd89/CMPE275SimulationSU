@@ -35,10 +35,6 @@ def get_customer_order(custID):
     customerName = custDetails['customerName']
     customerOrder = custDetails['order']
     print(len(customerOrder))
-    orderArray = []
-    for i in range(len(customerOrder)):
-        print(i, customerOrder[i])
-
     if len(customerOrder) > 0:
         addOrdertoCoordinatorQueue(custID, customerName, customerOrder,custDetails['orderTime'])
         print("Cashier: {} {} will be provided in a while ".format(customerName, customerOrder))

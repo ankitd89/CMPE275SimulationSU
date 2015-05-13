@@ -1,3 +1,4 @@
+__author__ = 'Ankit'
 
 from flask import Flask
 import time
@@ -26,7 +27,7 @@ while(True):
         time.sleep(randint(3, 10))
         endtime=round(time.time()-start,2)
         print("Cook: Hey {}, for {} is ready..".format(orderName,customerName))
-        print("Cook took {} to prepare ".format(orderName))
+        print("Cook took {} to prepare ".format(endtime))
         coordinatorProcessedQueueUrl = 'http://localhost:6001/coordinator/processedorder'
         header = {'Content-Type': 'application/json'}
         addOrder = requests.post(coordinatorProcessedQueueUrl,
@@ -36,11 +37,7 @@ while(True):
         # print("Waiting for next order..")
         time.sleep(randint(3, 6))
 
-
-
-
 if __name__ == '__main__':
- app.debug = True
-host = 'localhost'
-port = 4001
-app.run(host=host, port=port)
+    host = 'localhost'
+    port = 4001
+    app.run(host=host, port=port)

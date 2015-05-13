@@ -8,7 +8,7 @@ from flask import Flask
 from flask import request
 from flask import json
 from flask import Response
-
+from app.Actors.customer import Customer
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 
@@ -69,9 +69,7 @@ def addProcessedQueue():
     responsedata = json.dumps(responsedata)
     resp = Response(responsedata, status=201, mimetype='application/json')
     return resp
-
 if __name__ == '__main__':
- app.debug = True
-host = 'localhost'
-port = 6001
-app.run(host=host, port=port)
+    host = 'localhost'
+    port = 6001
+    app.run(host=host, port=port)
