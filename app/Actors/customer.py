@@ -1,12 +1,9 @@
 __author__ = 'Rashmi'
 
-import Queue
+import queue
 from flask import Flask
 from flask import request
-from flask import Response
 from flask import jsonify
-import time
-import sys
 import logging
 
 app = Flask(__name__)
@@ -17,7 +14,7 @@ def get_time():
     queueResponse = request.get(wallClockURL).json()
     return 	queueResponse['time']
 
-q = Queue.Queue()
+q = queue.Queue()
 class Customer:
 
     #Attributes
@@ -78,7 +75,7 @@ class Customer:
 def create_customer():
     if request.method == 'POST':
         cust=Customer(request.json['customerName'], request.json['custId'], request.json['order'])
-        print(cust)
+        print(cust.customerName + "added to Queue")
         customers.append(cust)
         q.put(cust)
         return jsonify({'status': 'customer successfully added'}), 201
@@ -90,8 +87,9 @@ def reomveCustomer():
         if q.empty():
             return jsonify({"status": "No Customer in queue"}), 204
         else:
-            custId = q.get(block=False)
-            return jsonify({"status": "customer deleted successfully", "id": custId}), 200
+            c = q.get(block=False)
+            custId = c.custId
+            return jsonify({"status": "customer deleted successfully", "custId": custId}), 200
 
 
 # Cashier will call this to ask for Customer Order
@@ -99,8 +97,8 @@ def reomveCustomer():
 def getCustomer(custId):
     cust=findCustomer(customers, custId)
     if cust is not None:
-        print("{} {}: Hello, I would like to have {} ".format(get_time(), cust.name, cust.order))
-        return jsonify({'customerName': cust.name, 'custId': cust.id, 'order': cust.order}), 200
+        print("{}: Hello, I would like to have {} ".format( cust.customerName, cust.order))
+        return jsonify({'customerName': cust.customerName, 'custId': cust.custId, 'order': cust.order}), 200
     else:
         return jsonify({"status": "customer not found"}), 200
 
@@ -108,7 +106,7 @@ def getCustomer(custId):
 
 def findCustomer(list, custId):
     for i in list:
-        if i.id==custId:
+        if i.custId ==custId:
             return i
     return None
 

@@ -21,18 +21,19 @@ def addOrdertoCookQueue(custID, custName, custOrder):
 
 
 def get_customer_order(custID):
-    getOrderUrl = "http://localhost:5001/customer/getCustomer" + str(custID)
+    print("In cust order")
+    getOrderUrl = "http://localhost:5001/customer/getCustomer/" + str(custID)
     custDetails = requests.get(getOrderUrl).json()
     customerID = custDetails['custId']
     customerName = custDetails['customerName']
     customerOrder = custDetails['order']
+    print(len(customerOrder))
     orderArray = []
-    for i, order in enumerate(customerOrder):
-        print(order)
-        customerOrder.append(order)
+    for i in range(len(customerOrder)):
+        print(i, customerOrder[i])
 
     if len(customerOrder) > 0:
-        print("{} Cashier: {} {} will be provided in a while ".format(get_time(), customerName, customerOrder))
+        print("Cashier: {} {} will be provided in a while ".format(customerName, customerOrder))
         for i, v in enumerate(customerOrder):
             addOrdertoCookQueue(customerID, customerName, v)
     else:
@@ -43,10 +44,10 @@ def getCustomer():
     custResponse = requests.delete(custURL)
     if custResponse.status_code == requests.codes.ok:
         custQueueResponse = custResponse.json()
-        custID = custQueueResponse['id']
+        custID = custQueueResponse['custId']
         waitTime = random.randrange(2, 10)
         time.sleep(waitTime)
-        print("Cashier: Hello, What would you like to order??".format(get_time()))
+        print("Cashier: Hello, What would you like to order??")
         get_customer_order(custID)
     elif custResponse.status_code == 204:
         time.sleep(random.randrange(2, 6))
@@ -60,4 +61,4 @@ def get_time():
 print("Cashier Waiting for Customer")
 while(True):
     getCustomer()
-    get_time()
+    #get_time()

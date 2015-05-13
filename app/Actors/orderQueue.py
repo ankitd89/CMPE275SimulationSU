@@ -1,6 +1,6 @@
 __author__ = 'rashmi'
 
-import Queue
+import queue
 import logging
 
 from flask import Flask
@@ -8,11 +8,25 @@ from flask import request
 from flask import jsonify
 from flask import json
 from flask import Response
-from order import Order
+
 
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
-orderQueue = Queue.Queue()
+orderQueue = queue.Queue()
+
+class Order:
+    def __init__(self, customerid, customername, orderName):
+        self.customerid = customerid
+        self.customername = customername
+        self.orderName = orderName
+
+    def displayOrder(self):
+        print("Order => {}...{}...{}".format(self.customerid, self.customername, self.orderName))
+
+
+
+
+
 
 @app.route('/cook/orderqueue', methods=['POST'])
 def addOrderQueue():
@@ -36,17 +50,14 @@ def read_queue():
         result_JSON = {
             'response': 'Empty Order'
         }
-
         json_data = jsonify(result_JSON)
         json_data.status_code = 204
-
     else:
         order = orderQueue.get(block=False)
-
         result_JSON = {
             'custId': order.customerid,
             'customerName': order.customername,
-            'itemName': order.itemname
+            'orderName': order.orderName
         }
 
         json_data = jsonify(result_JSON)
@@ -56,4 +67,4 @@ def read_queue():
 
 
 if __name__ == '__main__':
-    app.run(port=3000)
+    app.run(port=3001)
