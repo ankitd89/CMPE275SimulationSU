@@ -7,7 +7,8 @@ from flask import jsonify
 import time
 app = Flask(__name__)
 import logging
-logging.getLogger("requests").setLevel(logging.WARNING)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 q = queue.Queue()
 class Customer:
@@ -20,7 +21,8 @@ class Customer:
     global transactionTime
     global customers
     customers = []
-
+    global waitTime
+    waitTime = []
 
 
     def __init__(self,customerName,custId,order,arrivalTime):
@@ -31,31 +33,6 @@ class Customer:
         self.arrivalTime = arrivalTime
         #Order Waiting time
         self.orderTime = 0
-
-
-
-'''
-    def nextNumber(self):
-        self.nextNumber += 1
-        return nextNumber
-
-    def customerWaiting(self):
-    	self.waitingTime += 1
-
-
-    def customerTransaction(self,transactionTime):
-    	self.transactionTime = transactionTime
-
-    def depart(self):
-    	return "Customer " + customerName + " has left."
-
-
-    def timeArrival(self, time):
-    	self.arrivalTime = time
-    	return "Customer " + customerName + " arrived at time unit " + arrivalTime
-
-'''
-
 
     # there is a customer queue
     # the customer is added to the queue
@@ -69,7 +46,7 @@ def create_customer():
     start=time.time()
     if request.method == 'POST':
         cust=Customer(request.json['customerName'], request.json['custId'], request.json['order'], start)
-        print(cust.customerName + "added to Queue")
+        print(cust.customerName + " added to Queue")
         customers.append(cust)
         q.put(cust)
         return jsonify({'status': 'customer successfully added'}), 201
@@ -85,7 +62,7 @@ def reomveCustomer():
             custId = c.custId
             start = c.arrivalTime
             endtime=round(time.time()-start,2)
-            print("Customer waited {} in the queue".format(endtime))
+            print("Customer waited {}s in the queue".format(endtime))
             return jsonify({"status": "customer deleted successfully", "custId": custId}), 200
 
 
@@ -110,13 +87,30 @@ def findCustomer(list, custId):
 # Coordinator will call this function when entire order is ready to deliver order
 @app.route('/customer/deliverOrder', methods=['POST'])
 def deliverCustomer():
-    print("Thank you")
+    global waitTime
+    print("{} : Thank you".format(request.json['customerName']))
     orderTime = request.json['orderTime']
     endtime=round(time.time()-orderTime,2)
-    print("Customer had to wait for {} to receive order".format(endtime))
+    waitTime.append(endtime)
+    print("{} had to wait for {}s to receive order".format(request.json['customerName'], endtime))
     return jsonify({"status": "Order Delivered to Customer"}), 200
+
+@app.route('/customer/displayWaitTime/<int:count>', methods=['GET'])
+def displayMeanWaitTime(count):
+    global waitTime
+    sum=0
+    i=0
+    for i in waitTime:
+       sum += i
+    print("Total Service Time " + str(sum))
+    count-=1
+    mean = round(sum/count,2)
+    print("The Average Wait time for {} Customer is {}s".format(count, mean))
+    return jsonify({"status": "Order Delivered to Customer"}), 200
+
 
 if __name__ == '__main__':
     host = 'localhost'
     port = 5001
+    print("Student Union is open")
     app.run(host=host, port=port)

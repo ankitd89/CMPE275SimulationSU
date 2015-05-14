@@ -9,8 +9,7 @@ import requests
 
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
-logging.getLogger("requests").setLevel(logging.WARNING)
-
+log.setLevel(logging.ERROR)
 
 def addOrdertoCookQueue(custID, custName, custOrder):
     cookQueueUrl = 'http://localhost:3001/cook/orderqueue'
@@ -34,14 +33,13 @@ def get_customer_order(custID):
     customerID = custDetails['custId']
     customerName = custDetails['customerName']
     customerOrder = custDetails['order']
-    print(len(customerOrder))
     if len(customerOrder) > 0:
         addOrdertoCoordinatorQueue(custID, customerName, customerOrder,custDetails['orderTime'])
         print("Cashier: {} {} will be provided in a while ".format(customerName, customerOrder))
         for i, v in enumerate(customerOrder):
             addOrdertoCookQueue(customerID, customerName, v)
     endtime=round(time.time()-start,2)
-    print("Cashier took {} for processing your order".format(endtime))
+    print("Cashier took {}s for processing your order".format(endtime))
 
 def getCustomer():
     custURL = 'http://localhost:5001/customer/removeCustomer'

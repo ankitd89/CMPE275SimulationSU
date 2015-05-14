@@ -1,6 +1,5 @@
-start python .\app\Actors\customer.py
-start python .\app\Actors\cashier.py
-start python .\app\Actors\orderQueue.py
-start python .\app\Actors\cook.py
-start python .\app\Actors\coordinator.py
-start python .\app\Actors\main_cust.py
+start python .\customer.py
+start python .\cashier.py
+start python .\orderQueue.py
+start python .\cook.py
+start python .\coordinator.py

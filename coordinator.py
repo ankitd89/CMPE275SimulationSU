@@ -8,9 +8,10 @@ from flask import Flask
 from flask import request
 from flask import json
 from flask import Response
-from app.Actors.customer import Customer
+from customer import Customer
 
-logging.getLogger("requests").setLevel(logging.WARNING)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 global processedCount
 global orderCount
@@ -69,6 +70,8 @@ def addProcessedQueue():
     responsedata = json.dumps(responsedata)
     resp = Response(responsedata, status=201, mimetype='application/json')
     return resp
+
+print("Coordinator is ready to serve")
 if __name__ == '__main__':
     host = 'localhost'
     port = 6001

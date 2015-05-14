@@ -1,18 +1,17 @@
 __author__ = 'rashmi'
 
 import queue
-import logging
 
+import logging
 from flask import Flask
 from flask import request
 from flask import jsonify
 from flask import json
 from flask import Response
 
-logging.getLogger("requests").setLevel(logging.WARNING)
-
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 orderQueue = queue.Queue()
 
 class Order:
